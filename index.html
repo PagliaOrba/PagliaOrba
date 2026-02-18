@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GR 20: We Survived (Half Of It)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --orange: #e8621a;
+      --orange-light: #f5833f;
+      --red: #c0392b;
+      --gold: #d4a843;
+      --text: #f0ede8;
+      --text-muted: #8a8580;
+      --border: #2a2520;
+      --font-ui: 'Inter', sans-serif;
+      --font-display: 'Playfair Display', serif;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── LANG TOGGLE ─── */
+    #lang-toggle {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.5rem;
+      z-index: 1000;
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      background: rgba(10,10,10,0.7);
+    }
+    #lang-toggle button {
+      padding: 0.45rem 0.9rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    #lang-toggle button.active {
+      background: var(--orange);
+      color: #fff;
+    }
+    #lang-toggle button:hover:not(.active) { color: var(--text); }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 1.2rem;
+      left: 1.5rem;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-dot.active { background: var(--orange); transform: scale(1.4); }
+    .nav-dot:hover { background: var(--orange-light); }
+
+    /* ─── CONTENT FADE ─── */
+    .fade-content { transition: opacity 0.35s ease; }
+    .fade-content.fading { opacity: 0; pointer-events: none; }
+
+    /* ─── HERO ─── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-align: center;
+      padding: 2rem;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 80%, rgba(232,98,26,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 20% 30%, rgba(192,57,43,0.08) 0%, transparent 50%),
+                  linear-gradient(180deg, #0a0a0a 0%, #0f0c08 100%);
+    }
+    /* Mountain SVG */
+    .hero-mountains {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      width: 100%;
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      border-radius: 4px;
+      margin-bottom: 1.8rem;
+      animation: fadeInDown 0.8s ease both;
+    }
+    h1.hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 7vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      animation: fadeInUp 0.9s 0.2s ease both;
+      background: linear-gradient(135deg, #f0ede8 30%, #e8621a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      margin-top: 1.2rem;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 560px;
+      animation: fadeInUp 1s 0.4s ease both;
+    }
+    .hero-cta {
+      margin-top: 2.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--orange);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.85rem 2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      animation: fadeInUp 1s 0.6s ease both;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .hero-cta:hover { background: var(--orange-light); transform: translateY(-2px); }
+    .scroll-arrow {
+      position: absolute;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      animation: bounce 2s infinite;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+    }
+
+    /* ─── STATS BAR ─── */
+    #stats {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+    }
+    .stats-grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 2rem;
+      text-align: center;
+    }
+    .stat-item { position: relative; }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      color: var(--orange);
+      display: block;
+      line-height: 1;
+    }
+    .stat-suffix {
+      font-size: 1.1rem;
+      color: var(--orange-light);
+    }
+    .stat-label {
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .stat-note {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 0.3rem;
+      opacity: 0.7;
+    }
+    .stat-item::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 20%; bottom: 20%;
+      width: 1px;
+      background: var(--border);
+    }
+    .stat-item:last-child::after { display: none; }
+
+    /* ─── GENERIC SECTION ─── */
+    section { padding: 5rem 1.5rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .section-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 0.8rem;
+    }
+    h2.section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+    .text-body {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      line-height: 1.75;
+    }
+    .text-body + .text-body { margin-top: 1rem; }
+    em.highlight { color: var(--orange-light); font-style: normal; font-weight: 600; }
+
+    /* ─── CHALLENGE ─── */
+    #challenge { background: var(--surface2); }
+    .challenge-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.6rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .card:hover { border-color: var(--orange); transform: translateY(-4px); }
+    .card-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .card-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+    .card-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ─── TIMELINE ─── */
+    #survived { background: var(--bg); }
+    .timeline { position: relative; margin-top: 3rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 28px;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--orange), var(--red), transparent);
+    }
+    .tl-item {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      opacity: 0;
+      transform: translateX(-30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: none; }
+    .tl-icon {
+      flex-shrink: 0;
+      width: 58px; height: 58px;
+      background: var(--surface);
+      border: 2px solid var(--orange);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      position: relative;
+      z-index: 1;
+    }
+    .tl-body { padding-top: 0.5rem; }
+    .tl-day {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--orange);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+    .tl-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .tl-text { font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; }
+    .tl-quote {
+      margin-top: 0.8rem;
+      padding: 0.7rem 1rem;
+      border-left: 3px solid var(--orange);
+      background: var(--surface);
+      font-style: italic;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* ─── SILVER LINING ─── */
+    #silver { background: var(--surface2); }
+    .silver-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+    .silver-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .silver-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+    .silver-icon { font-size: 2.8rem; margin-bottom: 1rem; }
+    .silver-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--gold); }
+    .silver-text { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ─── SCOREBOARD ─── */
+    #halftime { background: var(--bg); }
+    .scoreboard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 2.5rem;
+      max-width: 700px;
+    }
+    .sb-header {
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sb-header-title {
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .sb-score {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+    }
+    .sb-body { padding: 1.5rem 2rem; }
+    .sb-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .sb-row:last-child { border-bottom: none; }
+    .sb-label { color: var(--text-muted); }
+    .sb-value { font-weight: 600; }
+    .sb-value.good { color: #4caf82; }
+    .sb-value.bad { color: var(--red); }
+    .sb-value.neutral { color: var(--gold); }
+
+    /* ─── WE'LL BE BACK ─── */
+    #comeback {
+      background: var(--surface2);
+      text-align: center;
+    }
+    .comeback-inner { max-width: 700px; margin: 0 auto; }
+    .peak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(232,98,26,0.12);
+      border: 1px solid rgba(232,98,26,0.3);
+      color: var(--orange-light);
+      padding: 0.6rem 1.4rem;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      letter-spacing: 0.05em;
+    }
+    .comeback-text {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 1rem;
+    }
+    .north-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 2.5rem;
+      text-align: left;
+    }
+    .nf-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .nf-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 0.5rem;
+    }
+    .footer-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .footer-divider {
+      display: inline-block;
+      margin: 0 0.5rem;
+      opacity: 0.4;
+    }
+
+    /* ─── SCROLL ANIMATIONS ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ─── KEYFRAMES ─── */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+    @keyframes pulse-ring {
+      0%   { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    @keyframes draw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ─── PARALLAX ─── */
+    .parallax-layer { will-change: transform; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      .timeline::before { left: 22px; }
+      .tl-icon { width: 46px; height: 46px; font-size: 1.2rem; }
+      .sb-header { flex-direction: column; gap: 0.5rem; text-align: center; }
+      .stat-item::after { display: none; }
+      nav { display: none; }
+    }
+
+    /* ─── MOUNTAIN WAVE DECORATION ─── */
+    .mountain-svg { display: block; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+    /* Underline accent */
+    .accent-line {
+      display: inline-block;
+      position: relative;
+    }
+    .accent-line::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 3px;
+      background: var(--orange);
+      border-radius: 2px;
+    }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      background: var(--surface2);
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      width: 0;
+      transition: width 1.5s cubic-bezier(0.22,1,0.36,1) 0.4s;
+    }
+
+    /* Tooltip */
+    [data-tooltip] {
+      position: relative;
+      cursor: help;
+    }
+    [data-tooltip]::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.78rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 10;
+    }
+    [data-tooltip]:hover::before { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- LANGUAGE TOGGLE -->
+  <div id="lang-toggle">
+    <button id="btn-cz" class="active" onclick="setLang('cs')">CZ</button>
+    <button id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <!-- DOTS NAV -->
+  <nav id="dot-nav" aria-label="Section navigation">
+    <div class="nav-dot active" data-target="hero" title="Hero"></div>
+    <div class="nav-dot" data-target="stats" title="Stats"></div>
+    <div class="nav-dot" data-target="challenge" title="Challenge"></div>
+    <div class="nav-dot" data-target="survived" title="Survived"></div>
+    <div class="nav-dot" data-target="silver" title="Silver Lining"></div>
+    <div class="nav-dot" data-target="halftime" title="Half-time"></div>
+    <div class="nav-dot" data-target="comeback" title="We'll Be Back"></div>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       1. HERO
+  ════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+
+    <!-- Animated mountains SVG -->
+    <svg class="hero-mountains mountain-svg" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="mgA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1a1510" />
+          <stop offset="100%" stop-color="#0a0a0a" />
+        </linearGradient>
+        <linearGradient id="mgB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#111" />
+          <stop offset="100%" stop-color="#0a0a0a" />
+        </linearGradient>
+      </defs>
+      <!-- back range -->
+      <path class="parallax-layer" data-speed="0.3"
+        d="M0 260 L80 200 L160 230 L280 140 L400 180 L500 120 L620 160 L740 100 L860 150 L950 90 L1060 130 L1180 80 L1300 120 L1380 100 L1440 130 L1440 320 L0 320Z"
+        fill="url(#mgA)" opacity="0.6"/>
+      <!-- front range -->
+      <path class="parallax-layer" data-speed="0.6"
+        d="M0 300 L120 240 L240 270 L380 190 L520 220 L640 160 L780 200 L900 150 L1020 190 L1140 140 L1260 175 L1370 155 L1440 170 L1440 320 L0 320Z"
+        fill="url(#mgB)" opacity="0.9"/>
+      <!-- snow peaks accent -->
+      <path
+        d="M740 100 L760 115 L720 115Z M950 90 L970 108 L930 108Z M1180 80 L1200 98 L1160 98Z"
+        fill="rgba(232,98,26,0.3)"/>
+    </svg>
+
+    <div class="hero-content fade-content">
+      <div class="hero-badge" data-key="hero.badge">Korzika 2025 • Část 1/2</div>
+      <h1 class="hero-title" data-key="hero.title">GR 20: We Survived<br/>(Half Of It)</h1>
+      <p class="hero-subtitle" data-key="hero.subtitle">
+        170 km skalnatého terény. 8 000 metrů převýšení. Nekonečné zásoby korsického uzenářského umění.
+        A naprostá nula strávená přemýšlením, jestli to byl dobrý nápad.
+      </p>
+      <a href="#stats" class="hero-cta" data-key="hero.cta">
+        <span>Přečíst přežití</span>
+        <span>↓</span>
+      </a>
+    </div>
+    <div class="scroll-arrow">↓</div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       2. STATS BAR
+  ════════════════════════════════════════ -->
+  <section id="stats">
+    <div class="stats-grid">
+      <div class="stat-item reveal" data-tooltip-key="stats.km.tip">
+        <span class="stat-number" data-count="170" data-suffix=" km">0</span>
+        <div class="stat-label fade-content" data-key="stats.km.label">Dokončeno</div>
+        <div class="stat-note fade-content" data-key="stats.km.note">z 188 km celkem</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <span class="stat-number" data-count="8000" data-suffix=" m ↑">0</span>
+        <div class="stat-label fade-content" data-key="stats.elevation.label">Převýšení</div>
+        <div class="stat-note fade-content" data-key="stats.elevation.note">jen nahoru</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <span class="stat-number" data-count="15" data-suffix=" kg">0</span>
+        <div class="stat-label fade-content" data-key="stats.pack.label">Startovní batoh</div>
+        <div class="stat-note fade-content" data-key="stats.pack.note">„budování charakteru"</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <span class="stat-number" data-prefix="-" data-count="5" data-suffix=" kg">0</span>
+        <div class="stat-label fade-content" data-key="stats.weight.label">Tělesná váha</div>
+        <div class="stat-note fade-content" data-key="stats.weight.note">nejlevnější dieta v Evropě</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-4">
+        <span class="stat-number" data-count="0" data-suffix="">0</span>
+        <div class="stat-label fade-content" data-key="stats.bridges.label">Fungující mosty</div>
+        <div class="stat-note fade-content" data-key="stats.bridges.note">mosty jsou nadhodnoceny</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       3. THE CHALLENGE
+  ════════════════════════════════════════ -->
+  <section id="challenge">
+    <div class="container">
+      <div class="section-tag reveal fade-content" data-key="challenge.tag">Co je GR 20</div>
+      <h2 class="section-title reveal fade-content" data-key="challenge.title">
+        Jedna z <span class="accent-line">nejtěžších</span> značených tras v Evropě.<br/>
+        Šli jsme tam dobrovolně.
+      </h2>
+      <p class="text-body reveal fade-content" data-key="challenge.body1">
+        GR 20 je 188 km dlouhá trasa vedoucí přes divoké srdce Korziky — od Calenzany na severu po Conzu na jihu. Skalnatý terén vyžadující scrambling, proměnlivé horské počasí, omezenou infrastrukturu a bojovnou odolnost. UNESCO jej zná. Turistické průvodce jej respektují. My jsme jej podcenili.
+      </p>
+      <p class="text-body reveal fade-content reveal-delay-1" data-key="challenge.body2">
+        15 kg? To je jen budování charakteru. Žádné mosty? Kdo potřebuje mosty, když máš kamarády. Zaplavený stan? Jenom ochutnávka místní hydrologie.
+      </p>
+
+      <div class="challenge-cards">
+        <div class="card reveal reveal-delay-1">
+          <div class="card-icon">⛰️</div>
+          <div class="card-title fade-content" data-key="ch.c1.title">Skalnatý terén</div>
+          <div class="card-text fade-content" data-key="ch.c1.text">Scrambling přes žulové bloky, řetězy a exponovaná místa. Popsáno jako „via ferrata bez lana".</div>
+        </div>
+        <div class="card reveal reveal-delay-2">
+          <div class="card-icon">🌩️</div>
+          <div class="card-title fade-content" data-key="ch.c2.title">Alpy počasí</div>
+          <div class="card-text fade-content" data-key="ch.c2.text">Horské bouře přicházejí bez varování. Předpověď počasí na Korzice je spíše umění než věda.</div>
+        </div>
+        <div class="card reveal reveal-delay-3">
+          <div class="card-icon">🏔️</div>
+          <div class="card-title fade-content" data-key="ch.c3.title">Limitovaná infrastruktura</div>
+          <div class="card-text fade-content" data-key="ch.c3.text">Refugia bez elektřiny, voda z horských pramenů, zásobování helikoptérou. Civilizace? Vzdálená vzpomínka.</div>
+        </div>
+        <div class="card reveal reveal-delay-4">
+          <div class="card-icon">🎒</div>
+          <div class="card-title fade-content" data-key="ch.c4.title">Tvůj batoh tvoje volba</div>
+          <div class="card-text fade-content" data-key="ch.c4.text">Každý gram jídla snědený = lehčí batoh. Každý den –300 g. Motivace, která funguje.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       4. CO JSME PŘEŽILI
+  ════════════════════════════════════════ -->
+  <section id="survived">
+    <div class="container">
+      <div class="section-tag reveal fade-content" data-key="survived.tag">Kronika katastrof</div>
+      <h2 class="section-title reveal fade-content" data-key="survived.title">
+        Co jsme přežili<br/><em style="font-style:italic;color:var(--text-muted);font-size:0.6em;" data-key="survived.subtitle">(výběr z nejhorších momentů, seřazeno dle dramatičnosti)</em>
+      </h2>
+
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-icon">⛈️</div>
+          <div class="tl-body">
+            <div class="tl-day fade-content" data-key="tl1.day">Den 2 • Noc plná dramatu</div>
+            <div class="tl-title fade-content" data-key="tl1.title">Bouře přišla bez SMS</div>
+            <div class="tl-text fade-content" data-key="tl1.text">Středomořská bouřka nemá čas na formality. Přišla v noci, bez varování, s plnou silou. Blesky osvětlovaly hory jako diskotéka pro masochisty, déšť bil do stanu jako unavený bubeník.</div>
+            <div class="tl-quote fade-content" data-key="tl1.quote">"Stan drží." — Optimistický výrok, který se ukázal být předčasný o přibližně 40 minut.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-icon">🏕️</div>
+          <div class="tl-body">
+            <div class="tl-day fade-content" data-key="tl2.day">Den 3 • Hydrologie 101</div>
+            <div class="tl-title fade-content" data-key="tl2.title">Stan jako rybník</div>
+            <div class="tl-text fade-content" data-key="tl2.text">Ukázalo se, že voda teče dolů. A dolů byl náš stan. Ráno jsme se probudili do lehkého mokra, které se eufemisticky dá nazvat „záhadnou rosou" nebo přesněji „naprostou katastrofou sbalení stanu".</div>
+            <div class="tl-quote fade-content" data-key="tl2.quote">"Alespoň jsme se nemuseli koupat." — Filozofické přijetí situace.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-icon">🌊</div>
+          <div class="tl-body">
+            <div class="tl-day fade-content" data-key="tl3.day">Den 5 • Improvizace</div>
+            <div class="tl-title fade-content" data-key="tl3.title">Mosty? Kdo potřebuje mosty?</div>
+            <div class="tl-text fade-content" data-key="tl3.text">Rozvodněné řeky po bouřích strhly mosty. Strhly doslova. Zbyl kus lana a vzpomínka. Přecházeli jsme brod s 15 kg na zádech, s holemi v rukou, modlíce se, aby nás proud nestáhl. Přežili jsme. Mosty ne.</div>
+            <div class="tl-quote fade-content" data-key="tl3.quote">"Bridges are overrated anyway." — Přehodnocení hodnot po přechodu řeky.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-icon">☀️</div>
+          <div class="tl-body">
+            <div class="tl-day fade-content" data-key="tl4.day">Den 6 • Klimatická varieta</div>
+            <div class="tl-title fade-content" data-key="tl4.title">Heatwave: Southern Edition</div>
+            <div class="tl-text fade-content" data-key="tl4.text">Po bouřích přišlo vedro. Korzické letní slunce není žert — je to osobní útok. 35°C, skalnatý terén bez stínu, batoh, který stále cítíte v každém svalu. Den, kdy jsme zvažovali, zda turistika nebyla špatný životní výběr.</div>
+            <div class="tl-quote fade-content" data-key="tl4.quote">"Voda dochází, mozky také." — Přesný zápisek z deníku.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       5. THE SILVER LINING
+  ════════════════════════════════════════ -->
+  <section id="silver">
+    <div class="container">
+      <div class="section-tag reveal fade-content" data-key="silver.tag">Proč jsme to přežili s úsměvem</div>
+      <h2 class="section-title reveal fade-content" data-key="silver.title">
+        The Silver Lining:<br/>Korzika, korsika, korsika.
+      </h2>
+      <p class="text-body reveal fade-content" data-key="silver.body">
+        Kdyby Korzika měla jen hory a počasí, byl by to treking. Ale ona má taky coppu, saucisson a pivo Pietra. A to mění všechno.
+      </p>
+
+      <div class="silver-grid">
+        <div class="silver-card reveal reveal-delay-1">
+          <div class="silver-icon">🏔️</div>
+          <div class="silver-title fade-content" data-key="sl1.title">Scenérie</div>
+          <div class="silver-text fade-content" data-key="sl1.text">Žulové útesy, azurová jezera v nadmořské výšce 2 000 m, lesy larikového modřínu. Nevyfotitelná krása. Zkoušeli jsme to stejně.</div>
+        </div>
+        <div class="silver-card reveal reveal-delay-2">
+          <div class="silver-icon">🥩</div>
+          <div class="silver-title fade-content" data-key="sl2.title">Coppa di Corsica</div>
+          <div class="silver-text fade-content" data-key="sl2.text">Korsická coppa je jiná kategorie. Když dojídáš suchý borek a dostaneš plátky coppy, je to spirituální zážitek. Nepřeháníme.</div>
+        </div>
+        <div class="silver-card reveal reveal-delay-3">
+          <div class="silver-icon">🍖</div>
+          <div class="silver-title fade-content" data-key="sl3.title">Saucisson</div>
+          <div class="silver-text fade-content" data-key="sl3.text">Korsický saucisson je napsán do UNESCO. Nebo by měl být. Sůl, koření, tuk — základní potravní skupiny pro přežití hor.</div>
+        </div>
+        <div class="silver-card reveal reveal-delay-4">
+          <div class="silver-icon">🍺</div>
+          <div class="silver-title fade-content" data-key="sl4.title">Pivo Pietra</div>
+          <div class="silver-text fade-content" data-key="sl4.text">Vařené z korsických kaštanů. Po 25 km v horách, v 35°C — je to nejlepší pivo na světě. Objektivně. Vědecky. Bez diskuse.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       6. HALF-TIME REPORT
+  ════════════════════════════════════════ -->
+  <section id="halftime">
+    <div class="container">
+      <div class="section-tag reveal fade-content" data-key="ht.tag">Poločasová zpráva</div>
+      <h2 class="section-title reveal fade-content" data-key="ht.title">Half-time Report:<br/>Výsledková listina</h2>
+      <p class="text-body reveal fade-content" data-key="ht.body">Jižní část GR 20 (Conca – Vizzavona): dokončeno. Severní část: čeká na nás.</p>
+
+      <!-- Progress bar -->
+      <div class="reveal" style="margin-top:2rem;max-width:700px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
+          <span style="font-size:0.82rem;color:var(--text-muted);" data-key="ht.progress.label">Postup GR 20</span>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--orange);">170 / 188 km (jižní část)</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" data-target-width="90"></div>
+        </div>
+      </div>
+
+      <div class="scoreboard reveal reveal-delay-1">
+        <div class="sb-header">
+          <div>
+            <div class="sb-header-title fade-content" data-key="ht.sb.title">GR 20 • Jižní část</div>
+            <div style="font-size:0.78rem;opacity:0.8;" data-key="ht.sb.sub">Korzika 2025</div>
+          </div>
+          <div class="sb-score">90<span style="font-size:1.2rem;"> %</span></div>
+        </div>
+        <div class="sb-body">
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r1.label">Ujetá vzdálenost</span>
+            <span class="sb-value good">170 km ✓</span>
+          </div>
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r2.label">Překonané výšky</span>
+            <span class="sb-value good">8 000 m ↑ ✓</span>
+          </div>
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r3.label">Ztracená váha</span>
+            <span class="sb-value good">-5 kg ✓</span>
+          </div>
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r4.label">Přežité bouřky</span>
+            <span class="sb-value neutral">2+ 🌩️</span>
+          </div>
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r5.label">Funkční mosty</span>
+            <span class="sb-value bad">0 ✗</span>
+          </div>
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r6.label">Coppy zkonzumováno</span>
+            <span class="sb-value good">∞ (dostatečné množství) ✓</span>
+          </div>
+          <div class="sb-row">
+            <span class="sb-label fade-content" data-key="ht.r7.label">Žal z nedokončení</span>
+            <span class="sb-value neutral">Motivace na severní část ↑</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       7. WE'LL BE BACK
+  ════════════════════════════════════════ -->
+  <section id="comeback">
+    <div class="comeback-inner">
+      <!-- Animated peak -->
+      <div class="reveal" style="margin-bottom:2rem;">
+        <svg viewBox="0 0 200 120" width="180" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+          <defs>
+            <linearGradient id="pkG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8621a"/>
+              <stop offset="100%" stop-color="#c0392b"/>
+            </linearGradient>
+          </defs>
+          <path d="M100 5 L170 110 L30 110Z" fill="url(#pkG)" opacity="0.15" stroke="#e8621a" stroke-width="1.5"
+            stroke-dasharray="320" stroke-dashoffset="320"
+            style="animation: draw 2s 0.5s ease forwards;"/>
+          <path d="M100 5 L115 30 L100 25 L85 30Z" fill="#e8621a" opacity="0.8"/>
+          <circle cx="100" cy="5" r="4" fill="#f5833f">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <text x="100" y="80" text-anchor="middle" fill="#e8621a" font-size="11"
+            font-family="Inter, sans-serif" font-weight="600" opacity="0.8">2 706 m</text>
+          <text x="100" y="93" text-anchor="middle" fill="#8a8580" font-size="9"
+            font-family="Inter, sans-serif">Monte Cinto</text>
+        </svg>
+      </div>
+
+      <div class="peak-badge reveal">
+        <span>▲</span>
+        <span data-key="cb.badge">Příští mise: Severní část GR 20</span>
+      </div>
+
+      <h2 class="section-title reveal fade-content" data-key="cb.title">
+        We'll Be Back.<br/>Tentokrát severní část.
+      </h2>
+      <p class="comeback-text reveal fade-content" data-key="cb.body1">
+        Severní část GR 20 — z Calenzany do Vizzavony — zahrnuje ty nejexpozovanější hřebeny, nejvíce technická místa a mimo jiné <em class="highlight">Monte Cinto: 2 706 m</em>, nejvyšší bod Korziky. Čeká na nás.
+      </p>
+      <p class="comeback-text reveal fade-content reveal-delay-1" data-key="cb.body2">
+        Poučili jsme se? Ano. Přibalíme víc coppy? Rozhodně. Doufáme, že mosty budou stát? S rezervou.
+      </p>
+
+      <div class="north-features reveal reveal-delay-2">
+        <div class="nf-item">
+          <span class="nf-icon">▲</span>
+          <span class="fade-content" data-key="nf1">Monte Cinto — 2 706 m</span>
+        </div>
+        <div class="nf-item">
+          <span class="nf-icon">🪨</span>
+          <span class="fade-content" data-key="nf2">Nejexpozovanější hřebeny trasy</span>
+        </div>
+        <div class="nf-item">
+          <span class="nf-icon">🌿</span>
+          <span class="fade-content" data-key="nf3">Calenzana — startovní bod severu</span>
+        </div>
+        <div class="nf-item">
+          <span class="nf-icon">🥩</span>
+          <span class="fade-content" data-key="nf4">Dvojitá dávka coppy v batohu</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       8. FOOTER
+  ════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-logo">GR 20</div>
+    <div class="footer-text">
+      <span class="fade-content" data-key="footer.text">Korzika 2025</span>
+      <span class="footer-divider">•</span>
+      <span class="fade-content" data-key="footer.sub">Průzkumná expedice, část 1/2</span>
+      <br/>
+      <span style="font-size:0.78rem;opacity:0.5;margin-top:0.4rem;display:inline-block;" data-key="footer.note">
+        Žádné mosty nebyly poškozeny naší přítomností. Přírodní síly byly rychlejší.
+      </span>
+    </div>
+  </footer>
+
+  <script>
+  // ════════════════════════════════════════
+  // TRANSLATIONS
+  // ════════════════════════════════════════
+  const TEXTS = {
+    cs: {
+      "hero.badge": "Korzika 2025 • Část 1/2",
+      "hero.title": "GR 20: We Survived<br/>(Half Of It)",
+      "hero.subtitle": "170 km skalnatého terénu. 8 000 metrů převýšení. Nekonečné zásoby korsického uzenářského umění. A naprostá nula strávená přemýšlením, jestli to byl dobrý nápad.",
+      "hero.cta": "Přečíst přežití ↓",
+      "stats.km.label": "Dokončeno",
+      "stats.km.note": "z 188 km celkem",
+      "stats.elevation.label": "Převýšení",
+      "stats.elevation.note": "jen nahoru",
+      "stats.pack.label": "Startovní batoh",
+      "stats.pack.note": "„budování charakteru"",
+      "stats.weight.label": "Tělesná váha",
+      "stats.weight.note": "nejlevnější dieta v Evropě",
+      "stats.bridges.label": "Fungující mosty",
+      "stats.bridges.note": "mosty jsou nadhodnoceny",
+      "challenge.tag": "Co je GR 20",
+      "challenge.title": "Jedna z <span class='accent-line'>nejtěžších</span> značených tras v Evropě.<br/>Šli jsme tam dobrovolně.",
+      "challenge.body1": "GR 20 je 188 km dlouhá trasa vedoucí přes divoké srdce Korziky — od Calenzany na severu po Conzu na jihu. Skalnatý terén vyžadující scrambling, proměnlivé horské počasí, omezenou infrastrukturu a bojovnou odolnost. UNESCO jej zná. Turistické průvodce jej respektují. My jsme jej podcenili.",
+      "challenge.body2": "15 kg? To je jen budování charakteru. Žádné mosty? Kdo potřebuje mosty, když má kamarády. Zaplavený stan? Jenom ochutnávka místní hydrologie.",
+      "ch.c1.title": "Skalnatý terén",
+      "ch.c1.text": "Scrambling přes žulové bloky, řetězy a exponovaná místa. Popsáno jako „via ferrata bez lana".",
+      "ch.c2.title": "Alpy počasí",
+      "ch.c2.text": "Horské bouře přicházejí bez varování. Předpověď počasí na Korzice je spíše umění než věda.",
+      "ch.c3.title": "Limitovaná infrastruktura",
+      "ch.c3.text": "Refugia bez elektřiny, voda z horských pramenů, zásobování helikoptérou. Civilizace? Vzdálená vzpomínka.",
+      "ch.c4.title": "Tvůj batoh, tvoje volba",
+      "ch.c4.text": "Každý gram jídla snědený = lehčí batoh. Každý den –300 g. Motivace, která funguje.",
+      "survived.tag": "Kronika katastrof",
+      "survived.title": "Co jsme přežili",
+      "survived.subtitle": "(výběr z nejhorších momentů, seřazeno dle dramatičnosti)",
+      "tl1.day": "Den 2 • Noc plná dramatu",
+      "tl1.title": "Bouře přišla bez SMS",
+      "tl1.text": "Středomořská bouřka nemá čas na formality. Přišla v noci, bez varování, s plnou silou. Blesky osvětlovaly hory jako diskotéka pro masochisty, déšť bil do stanu jako unavený bubeník.",
+      "tl1.quote": "„Stan drží." — Optimistický výrok, který se ukázal být předčasný o přibližně 40 minut.",
+      "tl2.day": "Den 3 • Hydrologie 101",
+      "tl2.title": "Stan jako rybník",
+      "tl2.text": "Ukázalo se, že voda teče dolů. A dolů byl náš stan. Ráno jsme se probudili do lehkého mokra, které se eufemisticky dá nazvat „záhadnou rosou" nebo přesněji „naprostou katastrofou sbalení stanu".",
+      "tl2.quote": "„Alespoň jsme se nemuseli koupat." — Filozofické přijetí situace.",
+      "tl3.day": "Den 5 • Improvizace",
+      "tl3.title": "Mosty? Kdo potřebuje mosty?",
+      "tl3.text": "Rozvodněné řeky po bouřích strhly mosty. Strhly doslova. Zbyl kus lana a vzpomínka. Přecházeli jsme brod s 15 kg na zádech, s holemi v rukou, modlíce se, aby nás proud nestáhl. Přežili jsme. Mosty ne.",
+      "tl3.quote": "„Bridges are overrated anyway." — Přehodnocení hodnot po přechodu řeky.",
+      "tl4.day": "Den 6 • Klimatická varieta",
+      "tl4.title": "Heatwave: Southern Edition",
+      "tl4.text": "Po bouřích přišlo vedro. Korzické letní slunce není žert — je to osobní útok. 35°C, skalnatý terén bez stínu, batoh, který stále cítíte v každém svalu. Den, kdy jsme zvažovali, zda turistika nebyla špatný životní výběr.",
+      "tl4.quote": "„Voda dochází, mozky také." — Přesný zápisek z deníku.",
+      "silver.tag": "Proč jsme to přežili s úsměvem",
+      "silver.title": "The Silver Lining:<br/>Korzika, korzika, korzika.",
+      "silver.body": "Kdyby Korzika měla jen hory a počasí, byl by to treking. Ale ona má taky coppu, saucisson a pivo Pietra. A to mění všechno.",
+      "sl1.title": "Scenérie",
+      "sl1.text": "Žulové útesy, azurová jezera v nadmořské výšce 2 000 m, lesy larikového modřínu. Nevyfotitelná krása. Zkoušeli jsme to stejně.",
+      "sl2.title": "Coppa di Corsica",
+      "sl2.text": "Korsická coppa je jiná kategorie. Když dojídáš suchý borek a dostaneš plátky coppy, je to spirituální zážitek. Nepřeháníme.",
+      "sl3.title": "Saucisson",
+      "sl3.text": "Korsický saucisson je napsán do UNESCO. Nebo by měl být. Sůl, koření, tuk — základní potravní skupiny pro přežití hor.",
+      "sl4.title": "Pivo Pietra",
+      "sl4.text": "Vařené z korsických kaštanů. Po 25 km v horách, v 35°C — je to nejlepší pivo na světě. Objektivně. Vědecky. Bez diskuse.",
+      "ht.tag": "Poločasová zpráva",
+      "ht.title": "Half-time Report:<br/>Výsledková listina",
+      "ht.body": "Jižní část GR 20 (Conca – Vizzavona): dokončeno. Severní část: čeká na nás.",
+      "ht.progress.label": "Postup GR 20",
+      "ht.sb.title": "GR 20 • Jižní část",
+      "ht.sb.sub": "Korzika 2025",
+      "ht.r1.label": "Ujetá vzdálenost",
+      "ht.r2.label": "Překonané výšky",
+      "ht.r3.label": "Ztracená váha",
+      "ht.r4.label": "Přežité bouřky",
+      "ht.r5.label": "Funkční mosty",
+      "ht.r6.label": "Coppy zkonzumováno",
+      "ht.r7.label": "Žal z nedokončení",
+      "cb.badge": "Příští mise: Severní část GR 20",
+      "cb.title": "We'll Be Back.<br/>Tentokrát severní část.",
+      "cb.body1": "Severní část GR 20 — z Calenzany do Vizzavony — zahrnuje ty nejexpozovanější hřebeny, nejvíce technická místa a mimo jiné <em class='highlight'>Monte Cinto: 2 706 m</em>, nejvyšší bod Korziky. Čeká na nás.",
+      "cb.body2": "Poučili jsme se? Ano. Přibalíme víc coppy? Rozhodně. Doufáme, že mosty budou stát? S rezervou.",
+      "nf1": "Monte Cinto — 2 706 m",
+      "nf2": "Nejexpozovanější hřebeny trasy",
+      "nf3": "Calenzana — startovní bod severu",
+      "nf4": "Dvojitá dávka coppy v batohu",
+      "footer.text": "Korzika 2025",
+      "footer.sub": "Průzkumná expedice, část 1/2",
+      "footer.note": "Žádné mosty nebyly poškozeny naší přítomností. Přírodní síly byly rychlejší."
+    },
+    en: {
+      "hero.badge": "Corsica 2025 • Part 1 of 2",
+      "hero.title": "GR 20: We Survived<br/>(Half Of It)",
+      "hero.subtitle": "170 km of rocky terrain. 8,000 metres of elevation gain. Infinite supplies of Corsican charcuterie. Zero seconds spent wondering if this was a good idea.",
+      "hero.cta": "Read the survival story ↓",
+      "stats.km.label": "Completed",
+      "stats.km.note": "out of 188 km total",
+      "stats.elevation.label": "Elevation Gain",
+      "stats.elevation.note": "uphill only",
+      "stats.pack.label": "Starting Pack Weight",
+      "stats.pack.note": "\"character building\"",
+      "stats.weight.label": "Body Weight Lost",
+      "stats.weight.note": "cheapest diet in Europe",
+      "stats.bridges.label": "Working Bridges",
+      "stats.bridges.note": "bridges are overrated anyway",
+      "challenge.tag": "What is GR 20",
+      "challenge.title": "One of the <span class='accent-line'>toughest</span> marked trails in Europe.<br/>We went there voluntarily.",
+      "challenge.body1": "GR 20 is a 188 km route cutting through the wild heart of Corsica — from Calenzana in the north to Conca in the south. Rocky terrain requiring scrambling, unpredictable mountain weather, limited infrastructure, and a stubborn will to survive. UNESCO knows it. Guidebooks respect it. We underestimated it.",
+      "challenge.body2": "15 kg? That's just character building. No bridges? Who needs bridges when you have friends. Flooded tent? Just sampling the local hydrology.",
+      "ch.c1.title": "Rocky Terrain",
+      "ch.c1.text": "Scrambling over granite blocks, chains and exposed sections. Described as \"via ferrata without the rope.\"",
+      "ch.c2.title": "Mountain Weather",
+      "ch.c2.text": "Mountain storms arrive without warning. Corsican weather forecasting is more art than science.",
+      "ch.c3.title": "Limited Infrastructure",
+      "ch.c3.text": "Refuges without electricity, water from mountain springs, helicopter resupply. Civilization? A distant memory.",
+      "ch.c4.title": "Your pack, your choice",
+      "ch.c4.text": "Every gram of food eaten = lighter pack. Every day –300 g. Motivation that actually works.",
+      "survived.tag": "Chronicle of Disasters",
+      "survived.title": "What We Survived",
+      "survived.subtitle": "(a selection of the worst moments, ranked by drama level)",
+      "tl1.day": "Day 2 • A Night of Drama",
+      "tl1.title": "The Storm Didn't Text First",
+      "tl1.text": "Mediterranean thunderstorms have no time for formalities. It arrived at night, without warning, at full force. Lightning lit up the mountains like a disco for masochists, rain hammering the tent like a tired drummer.",
+      "tl1.quote": "\"The tent is holding.\" — An optimistic statement that turned out to be premature by approximately 40 minutes.",
+      "tl2.day": "Day 3 • Hydrology 101",
+      "tl2.title": "The Tent As a Pond",
+      "tl2.text": "It turned out that water flows downhill. And downhill was where our tent was. We woke up to what could generously be called \"mysterious morning dew\" or more accurately \"a complete tent-pitching catastrophe.\"",
+      "tl2.quote": "\"At least we didn't need to shower.\" — Philosophical acceptance of the situation.",
+      "tl3.day": "Day 5 • Improvisation",
+      "tl3.title": "Bridges? Who Needs Bridges?",
+      "tl3.text": "Swollen rivers after the storms took out bridges. Literally took them out. Just a bit of rope and a memory remained. We waded across with 15 kg on our backs, poles in hand, praying the current wouldn't take us. We survived. The bridges didn't.",
+      "tl3.quote": "\"Bridges are overrated anyway.\" — A recalibration of values after fording a river.",
+      "tl4.day": "Day 6 • Climate Variety",
+      "tl4.title": "Heatwave: Southern Edition",
+      "tl4.text": "After the storms came the heat. Corsican summer sun isn't a joke — it's a personal attack. 35°C, rocky terrain with zero shade, a pack you feel in every muscle. The day we genuinely considered whether hiking was a poor life choice.",
+      "tl4.quote": "\"Water running out, brain cells too.\" — Accurate diary entry.",
+      "silver.tag": "Why We Survived With a Smile",
+      "silver.title": "The Silver Lining:<br/>Corsica, Corsica, Corsica.",
+      "silver.body": "If Corsica only had mountains and weather, it would just be a trek. But it also has coppa, saucisson and Pietra beer. And that changes everything.",
+      "sl1.title": "The Scenery",
+      "sl1.text": "Granite cliffs, turquoise mountain lakes at 2,000 m altitude, laricio pine forests. Beauty that can't be photographed. We tried anyway.",
+      "sl2.title": "Coppa di Corsica",
+      "sl2.text": "Corsican coppa is a different category altogether. When you're finishing a dry cracker and someone hands you coppa slices, it's a spiritual experience. Not exaggerating.",
+      "sl3.title": "Saucisson",
+      "sl3.text": "Corsican saucisson should be on UNESCO's list. Salt, spice, fat — the essential food groups for mountain survival.",
+      "sl4.title": "Pietra Beer",
+      "sl4.text": "Brewed from Corsican chestnuts. After 25 km in the mountains at 35°C — objectively the best beer in the world. Scientifically proven. No argument.",
+      "ht.tag": "Half-time Report",
+      "ht.title": "Half-time Report:<br/>The Scoreboard",
+      "ht.body": "Southern GR 20 (Conca – Vizzavona): completed. Northern part: it's waiting for us.",
+      "ht.progress.label": "GR 20 Progress",
+      "ht.sb.title": "GR 20 • Southern Section",
+      "ht.sb.sub": "Corsica 2025",
+      "ht.r1.label": "Distance Covered",
+      "ht.r2.label": "Elevation Conquered",
+      "ht.r3.label": "Weight Lost",
+      "ht.r4.label": "Storms Survived",
+      "ht.r5.label": "Working Bridges",
+      "ht.r6.label": "Coppa Consumed",
+      "ht.r7.label": "Regret Level",
+      "cb.badge": "Next Mission: Northern GR 20",
+      "cb.title": "We'll Be Back.<br/>Northern section. This time.",
+      "cb.body1": "The northern section of GR 20 — from Calenzana to Vizzavona — features the most exposed ridges, the most technical passages, and includes <em class='highlight'>Monte Cinto: 2,706 m</em>, Corsica's highest peak. It's waiting.",
+      "cb.body2": "Have we learned our lesson? Yes. Packing extra coppa? Absolutely. Hoping the bridges will be standing? Cautiously.",
+      "nf1": "Monte Cinto — 2,706 m",
+      "nf2": "Most exposed ridges of the route",
+      "nf3": "Calenzana — northern starting point",
+      "nf4": "Double coppa allowance in the pack",
+      "footer.text": "Corsica 2025",
+      "footer.sub": "Reconnaissance Expedition, Part 1 of 2",
+      "footer.note": "No bridges were harmed by our presence. Natural forces were faster."
+    }
+  };
+
+  let currentLang = 'cs';
+
+  function setLang(lang) {
+    if (lang === currentLang) return;
+    const el = document.querySelector('.fade-content') ? document.querySelectorAll('.fade-content') : [];
+    // Fade out
+    document.querySelectorAll('.fade-content').forEach(e => e.classList.add('fading'));
+    setTimeout(() => {
+      currentLang = lang;
+      applyTranslations();
+      document.querySelectorAll('.fade-content').forEach(e => e.classList.remove('fading'));
+      document.getElementById('btn-cz').classList.toggle('active', lang === 'cs');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    }, 320);
+  }
+
+  function applyTranslations() {
+    const t = TEXTS[currentLang];
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const key = el.dataset.key;
+      if (t[key] !== undefined) {
+        el.innerHTML = t[key];
+      }
+    });
+    document.documentElement.lang = currentLang === 'cs' ? 'cs' : 'en';
+  }
+
+  // ════════════════════════════════════════
+  // COUNTER ANIMATION
+  // ════════════════════════════════════════
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.count, 10);
+    const suffix = el.dataset.suffix || '';
+    const prefix = el.dataset.prefix || '';
+    const duration = 1800;
+    const start = performance.now();
+
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const value = Math.round(easeOut(progress) * target);
+      el.textContent = prefix + value.toLocaleString('cs-CZ') + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ════════════════════════════════════════
+  // INTERSECTION OBSERVER
+  // ════════════════════════════════════════
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+
+        // counters
+        if (entry.target.querySelector && entry.target.querySelector('[data-count]')) {
+          entry.target.querySelectorAll('[data-count]').forEach(animateCounter);
+        }
+        if (entry.target.dataset && entry.target.dataset.count !== undefined) {
+          animateCounter(entry.target);
+        }
+
+        // progress bar
+        const bar = entry.target.querySelector('.progress-bar-fill');
+        if (bar) {
+          const w = bar.dataset.targetWidth || '0';
+          setTimeout(() => { bar.style.width = w + '%'; }, 100);
+        }
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal, .tl-item').forEach(el => revealObserver.observe(el));
+
+  // Stats counter observer — observe each stat number directly
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        statObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => statObserver.observe(el));
+
+  // ════════════════════════════════════════
+  // DOT NAVIGATION
+  // ════════════════════════════════════════
+  const sections = ['hero','stats','challenge','survived','silver','halftime','comeback'];
+  const dots = document.querySelectorAll('.nav-dot');
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const target = document.getElementById(dot.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+
+  // ════════════════════════════════════════
+  // PARALLAX
+  // ════════════════════════════════════════
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        document.querySelectorAll('.parallax-layer').forEach(el => {
+          const speed = parseFloat(el.dataset.speed || 0.3);
+          el.style.transform = `translateY(${scrollY * speed}px)`;
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // ════════════════════════════════════════
+  // HERO SUBTITLE TYPEWRITER
+  // ════════════════════════════════════════
+  // (subtitle already animated via CSS fadeInUp, no extra JS needed)
+
+  // ════════════════════════════════════════
+  // INIT
+  // ════════════════════════════════════════
+  applyTranslations();
+  </script>
+</body>
+</html>
